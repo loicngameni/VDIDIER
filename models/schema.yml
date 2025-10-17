@@ -51,8 +51,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_customers')
-              field: customer_id
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
       - name: order_date
         description: "Date de la commande."
       - name: order_status
@@ -66,8 +67,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_orders')
-              field: order_id
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
       - name: item_id
         description: "Identifiant unique de la ligne de commande."
         tests:
@@ -77,8 +79,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_products')
-              field: product_id
+              arguments:
+                to: ref('stg_products')
+                field: product_id
       - name: line_total
         description: "Montant total de la ligne (quantité * prix * (1 - remise))."
 
@@ -131,8 +134,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_products')
-              field: product_id
+              arguments:
+                to: ref('stg_products')
+                field: product_id
       - name: nb_orders
         description: "Nombre de commandes contenant ce produit."
       - name: total_quantity_sold
@@ -152,13 +156,13 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('stg_customers')
-              field: customer_id
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
       - name: nb_orders
         description: "Nombre total de commandes passées par le client."
       - name: total_sales_amount
         description: "Chiffre d'affaires total généré par le client."
       - name: avg_order_value
         description: "Valeur moyenne d'une commande du client."
-
 
