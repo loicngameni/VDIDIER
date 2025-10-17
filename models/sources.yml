@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: vdidier
+    database: VDIDIER
+    schema: VD  
+    tables:
+      - name: ORDERS
+      - name: CUSTOMERS
+      - name: ORDER_ITEMS
+      - name: PRODUCTS
+
+
+  

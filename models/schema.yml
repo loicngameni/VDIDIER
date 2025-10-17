@@ -1,0 +1,168 @@
+version: 2
+
+sources:
+  - name: vdidier
+    description: "Données sources brutes provenant des fichiers CSV."
+    tables:
+      - name: customers
+        description: "Fichier source des clients."
+      - name: orders
+        description: "Fichier source des commandes."
+      - name: order_items
+        description: "Fichier source des lignes de commandes."
+      - name: products
+        description: "Fichier source des produits."
+
+models:
+
+  # -------------------------------
+  # STAGING MODELS
+  # -------------------------------
+
+  - name: stg_customers
+    description: "Table de staging contenant les clients nettoyés et standardisés."
+    columns:
+      - name: customer_id
+        description: "Identifiant unique du client."
+        tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: "Prenom du client."
+      - name: last_name
+        description: "Nom du client."
+      - name: email
+        description: "Adresse e-mail du client."
+      - name: city
+        description: "Ville du client."
+      - name: state
+        description: "État ou région du client."
+
+  - name: stg_orders
+    description: "Table de staging des commandes normalisées."
+    columns:
+      - name: order_id
+        description: "Identifiant unique de la commande."
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: "Clé étrangère vers stg_customers."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        description: "Date de la commande."
+      - name: order_status
+        description: "Statut de la commande (en attente,en cours, expédiée, annulée...)."
+
+  - name: stg_order_items
+    description: "Lignes de commande nettoyées et enrichies du montant total."
+    columns:
+      - name: order_id
+        description: "Identifiant de la commande."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+      - name: item_id
+        description: "Identifiant unique de la ligne de commande."
+        tests:
+          - not_null
+      - name: product_id
+        description: "Clé étrangère vers stg_products."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: line_total
+        description: "Montant total de la ligne (quantité * prix * (1 - remise))."
+
+  - name: stg_products
+    description: "Table de staging contenant les produits nettoyés et typés."
+    columns:
+      - name: product_id
+        description: "Identifiant unique du produit."
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        description: "Nom du produit."
+      - name: list_price
+        description: "Prix unitaire du produit."
+
+  # -------------------------------
+  # INTERMEDIATE MODELS
+  # -------------------------------
+
+  - name: sales
+    description: "Jointure entre les commandes, lignes de commandes et produits. Base détaillée pour les analyses de ventes."
+    columns:
+      - name: order_id
+        description: "Identifiant de la commande."
+      - name: product_id
+        description: "Identifiant du produit."
+      - name: line_total
+        description: "Montant total de la ligne."
+
+  - name: customers_orders
+    description: "Jointure entre les clients et leurs commandes pour relier l’activité client."
+    columns:
+      - name: customer_id
+        description: "Identifiant du client."
+      - name: order_id
+        description: "Identifiant de la commande."
+      - name: order_date
+        description: "Date de la commande."
+
+  # -------------------------------
+  # MARTS MODELS
+  # -------------------------------
+
+  - name: mart_sales
+    description: "Vue agrégée des ventes par produit. Sert au tableau de bord Produits/Ventes."
+    columns:
+      - name: product_id
+        description: "Identifiant du produit."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: nb_orders
+        description: "Nombre de commandes contenant ce produit."
+      - name: total_quantity_sold
+        description: "Quantité totale vendue du produit."
+      - name: total_sales_amount
+        description: "Chiffre d'affaires total généré par ce produit."
+      - name: avg_list_price
+        description: "Prix moyen de vente du produit."
+      - name: avg_discount_pct
+        description: "Remise moyenne appliquée au produit (en %)."
+
+  - name: mart_customers
+    description: "Vue agrégée des ventes par client. Sert au tableau de bord Clients/Fidélisation."
+    columns:
+      - name: customer_id
+        description: "Identifiant du client."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: nb_orders
+        description: "Nombre total de commandes passées par le client."
+      - name: total_sales_amount
+        description: "Chiffre d'affaires total généré par le client."
+      - name: avg_order_value
+        description: "Valeur moyenne d'une commande du client."
+
