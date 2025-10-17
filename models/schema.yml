@@ -102,7 +102,7 @@ models:
   # INTERMEDIATE MODELS
   # -------------------------------
 
-  - name: int_sales
+  - name: sales
     description: "Jointure entre les commandes, lignes de commandes et produits. Base détaillée pour les analyses de ventes."
     columns:
       - name: order_id
@@ -112,7 +112,7 @@ models:
       - name: line_total
         description: "Montant total de la ligne."
 
-  - name: int_customers_orders
+  - name: customers_orders
     description: "Jointure entre les clients et leurs commandes pour relier l’activité client."
     columns:
       - name: customer_id

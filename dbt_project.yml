@@ -34,16 +34,11 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   les_velos_de_didier:
-    # Applies to all files under models/example/
     staging:
-      +schema: stg
       +materialized: view
     marts:
-      +schema: marts
       +materialized: table
-    +meta:
-      intermediate:
-        +schema: int
-        +materialized: view
+    intermediate:
+      +materialized: view
 flags:
   require_generic_test_arguments_property: true

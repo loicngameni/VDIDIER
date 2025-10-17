@@ -1,10 +1,10 @@
 {{ config(materialized='table') }}
 
 with customers_orders as (
-    select * from {{ ref('int_customers_orders') }}
+    select * from {{ ref('customers_orders') }}
 ),
 sales as (
-    select * from {{ ref('int_sales') }}
+    select * from {{ ref('sales') }}
 ),
 joined as (
     select
@@ -34,4 +34,4 @@ aggregated as (
         state
 )
 
-select * from aggregated;
+select * from aggregated

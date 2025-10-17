@@ -24,4 +24,4 @@ aggregated as (
         s.model_year
 )
 
-select * from aggregated;
+select * from aggregated
